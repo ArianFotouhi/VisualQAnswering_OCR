@@ -9,6 +9,7 @@ The GPT4 based version of model also is available on VQA_OCR_GPT branch.
 
 Input image:
 <img src='image.png'/>
+<hr>
 Question
 ```
 What is the date of event?
