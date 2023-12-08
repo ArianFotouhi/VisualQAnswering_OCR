@@ -7,7 +7,7 @@ The GPT4 based version of model also is available on VQA_OCR_GPT branch.
 
 <hr>
 
-Input image:
+<h2>Input image</h2>
 <img src='image.png'/>
 <hr>
 Question
