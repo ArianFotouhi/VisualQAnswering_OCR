@@ -1,63 +1,54 @@
-import torch
-from langchain import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, pipeline
 from ocr import ocr_image
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
-) 
-from langchain.schema import AIMessage, HumanMessage
+import transformers
+import torch
+
+import warnings 
+warnings.filterwarnings('ignore') 
+
+
 
 def LLM_Launcher(question, instruction, image_path):
-    MODEL_NAME = "TheBloke/Llama-2-13b-Chat-GPTQ"
-    
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
-    
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_NAME, torch_dtype=torch.float16, trust_remote_code=True, device_map="auto"
-    )
-    
-    generation_config = GenerationConfig.from_pretrained(MODEL_NAME)
-    generation_config.max_new_tokens = 1024
-    generation_config.temperature = 0.0001
-    generation_config.top_p = 0.95
-    generation_config.do_sample = True
-    generation_config.repetition_penalty = 1.15
-    
-    text_pipeline = pipeline(
-        "text-generation",
-        model=model,
-        tokenizer=tokenizer,
-        generation_config=generation_config,
-    )
-    
-    llm = HuggingFacePipeline(pipeline=text_pipeline, model_kwargs={"temperature": 0})
+    # MODEL_NAME = "TheBloke/Llama-2-13b-Chat-GPTQ"
+
+    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
 
     retrived_info=ocr_image(image_path)
 
-    prompt = f"""
-    {retrived_info}
-    """
 
 
-    template = "Answer the question based on this information:{prompt}"
+    template = f"Answer the question based on this information:{retrived_info}"
 
-    human_template = "{question}"
+
     
-    chat_prompt = ChatPromptTemplate.from_messages(
-        [
-            SystemMessagePromptTemplate.from_template(template),
-            # HumanMessage(content=""),
-            AIMessage(content=instruction),
-            HumanMessagePromptTemplate.from_template(human_template),
-        ]
-    )
-    
-    messages = chat_prompt.format_messages(
-        prompt=prompt, question=question
-    )
+    messages = [
+        {"role": "user", "content": template},
+        {"role": "assistant", "content": instruction},
+        {"role": "assistant", "content": question},
 
-    result = llm.predict_messages(messages)
-    print(result.content)
+    ]
+
+
+
+    pipeline = transformers.pipeline(
+        "text-generation",
+        model=model_id,
+        model_kwargs={"torch_dtype": torch.bfloat16},
+        device_map="auto",
+    )    
+    terminators = [
+        pipeline.tokenizer.eos_token_id,
+        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+    ]
+
+    outputs = pipeline(
+        messages,
+        max_new_tokens=512,
+        eos_token_id=terminators,
+        do_sample=True,
+        temperature=0.05,
+        top_p=0.9,
+    )
+    print('------------------------------------------------Answer------------------------------------------------')
+    print(outputs[0]["generated_text"][-1])
+
