@@ -10,7 +10,7 @@ question = "what is the seat number?"
 # question = "what is the flight number?"
 # question = "what is the flight destination?"
 
-image_path = 'image5.png'
+image_path = 'image2.jpg'
 
 
 LLM_Launcher(question= question,
