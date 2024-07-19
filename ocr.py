@@ -6,7 +6,13 @@ import numpy as np
 
 
 def ocr_image(image_path):
+    #initial closeness
     closeness = 40
+    # from 0 to 1
+    sensitivity = 0.6
+
+
+
     # Initialize the easyocr Reader
     reader = easyocr.Reader(['en'])
 
@@ -27,7 +33,8 @@ def ocr_image(image_path):
 
     # Loop through each detected text box to group close texts
     empty_ratio = 1
-    while (empty_ratio>0.5):
+
+    while ((1-empty_ratio)<sensitivity):
         print('in while')
         output =[]
         for i in range(len(results)):
@@ -64,7 +71,7 @@ def ocr_image(image_path):
         print(output)
         
 
-        if empty_ratio>0.5:
+        if (1-empty_ratio)<sensitivity:
             closeness += 10
         
     

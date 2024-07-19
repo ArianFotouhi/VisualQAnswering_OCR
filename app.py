@@ -4,13 +4,13 @@ instruction = "Answer with minimal number of words. Example: What is the seat nu
 
 
 # question = "What is the passenger name?" 
-# question = "What is the gate?" 
+question = "What is the gate?" 
 # question = "what is the flight date?"
-question = "what is the seat number?" 
+#question = "what is the seat number?" 
 # question = "what is the flight number?"
 # question = "what is the flight destination?"
 
-image_path = 'image2.jpg'
+image_path = 'image8.jpg'
 
 
 LLM_Launcher(question= question,
